@@ -34,10 +34,13 @@ namespace RoboticaProject
             Motor motorArm = new Motor(MotorPort.OutB);
 
             EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.In1, GyroMode.Angle);
+            
+            int[] correctie = { 0, //Links
+                2 }; // Rechts
 
 
             // Maakt de robot aan
-            Robot legoRobot = new LegoRobot.Robot(motorLinks, motorRechts, motorArm, gyroSensor);
+            Robot legoRobot = new LegoRobot.Robot(motorLinks, motorRechts, motorArm, gyroSensor,correctie);
 
             legoRobot.VoortBewegen(10000, 40, true);
             //legoRobot.DraaienHoeveelheidGraden(90);

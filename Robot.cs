@@ -22,7 +22,8 @@ namespace LegoRobot
         private Motor motorLinks;
         private Motor motorRechts;
         //private MotorSync motorLR;
-       
+
+        int[] correctieMotorLR;
 
 
         private Motor motorArm;
@@ -38,13 +39,15 @@ namespace LegoRobot
         public Robot(
             Motor imotorLinks, Motor imotorRechts,
             //MotorPort imotorLinks, MotorPort imotorRechts,
-            Motor imotorArm, EV3GyroSensor igyroSensor)
+            Motor imotorArm, EV3GyroSensor igyroSensor,
+            int[] icorrectieArray)
         {
             motorLinks = imotorLinks;
             motorRechts = imotorRechts;
             motorArm = imotorArm;
             gyroSensor = igyroSensor;
             hoekTeller = GyroLezen();
+            correctieMotorLR = icorrectieArray;
             //motorLR = new MotorSync(imotorLinks, imotorRechts);
         }
 
@@ -58,11 +61,16 @@ namespace LegoRobot
             int beginGraad = hoekTeller; // lees gyro uit
             vooruitRijden = vooruit;
 
+            int motorSnelheidLinks = snelheid + correctieMotorLR[0];
+            int motorSnelheidRechts = snelheid + correctieMotorLR[1];
+
+
 
             // flipt de snelheid als hij achteruit moet rijden
             if (vooruitRijden == false)
             {
-                snelheid = snelheid * -1;
+                motorSnelheidLinks *=-1;
+                motorSnelheidRechts *= -1;
             }
 
             // Snelheid een waarde maken waar de motors wat mee kunnen
@@ -70,94 +78,118 @@ namespace LegoRobot
 
 
             //functie voor gryo om de robot recht te houden
-            void RechtHouden(int moterSnelheid)
+            void RechtHouden(int RH_motorSnelheidLinks, int RH_motorSnelheidRechts)
             {
-                int motorSnelheidLinks = moterSnelheid;
-                int motorSnelheidRechts = moterSnelheid;
-                  
+
+
+
+
+                // niet nodig atm
+                //int motorSnelheidLinksRH = motorSnelheidLinks;
+                //int motorSnelheidRechtsRH = motorSnelheidRechts;
+
+                int motorSnelheidLinksBegin = RH_motorSnelheidLinks;
+                int motorSnelheidRechtsBegin = RH_motorSnelheidRechts;
+
+
                 while (isAanHetRijden)
                 {
-                   
+
                     int huidigeHoek = GyroLezen();
                     LcdConsole.WriteLine($"{huidigeHoek}");
                     if (beginGraad != huidigeHoek)
                     {
                         if (snelheid > 0)
                         {
+                            // Naar rechts gedraaid
                             if (beginGraad < huidigeHoek)
                             {
-                                if ((beginGraad + 5) < huidigeHoek)
+                                //Te ver naar rechts gedraaid
+                                if ((beginGraad + 5) < huidigeHoek) 
                                 {
-                                    motorSnelheidLinks = moterSnelheid - 5;
-                                    motorSnelheidRechts = moterSnelheid + 5;
-                                    motorLinks.SetPower(Convert.ToSByte(motorSnelheidLinks));
-                                    motorRechts.SetPower(Convert.ToSByte(motorSnelheidRechts));
+                                    RH_motorSnelheidLinks = motorSnelheidLinksBegin - 5;
+                                    RH_motorSnelheidRechts = motorSnelheidRechtsBegin + 5;
+                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
+                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
                                 }
+                                // zit nog binnen de marges
                                 else
                                 {
-                                    motorSnelheidLinks -= 1;
-                                    motorSnelheidRechts += 1;
-                                    motorLinks.SetPower(Convert.ToSByte(motorSnelheidLinks));
-                                    motorRechts.SetPower(Convert.ToSByte(motorSnelheidRechts));
+                                    RH_motorSnelheidLinks -= 1;
+                                    RH_motorSnelheidRechts += 1;
+                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
+                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
                                 }
 
                             }
+                            // Naar links gedraaid
                             else
                             {
+                                // te ver naare links gedraaid
                                 if ((beginGraad - 5) > huidigeHoek)
                                 {
-                                    motorSnelheidLinks = moterSnelheid + 5;
-                                    motorSnelheidRechts = moterSnelheid - 5;
-                                    motorLinks.SetPower(Convert.ToSByte(motorSnelheidLinks));
-                                    motorRechts.SetPower(Convert.ToSByte(motorSnelheidRechts));
+                                    RH_motorSnelheidLinks = motorSnelheidLinksBegin + 5;
+                                    RH_motorSnelheidRechts = motorSnelheidRechtsBegin - 5;
+                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
+                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
                                 }
+                                // zit nog binnen de marges
                                 else
                                 {
-                                    motorSnelheidLinks += 1;
+                                    RH_motorSnelheidLinks += 1;
                                     motorSnelheidRechts -= 1;
-                                    motorLinks.SetPower(Convert.ToSByte(motorSnelheidLinks));
+                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
                                     motorRechts.SetPower(Convert.ToSByte(motorSnelheidRechts));
                                 }
                             }
-                        } else
+                        }
+                        // rijd achteruit
+                        else
                         {
+                            // draait naar rechts
                             if (beginGraad < huidigeHoek)
                             {
-                                    if ((beginGraad - 5) < huidigeHoek)
-                                    {
-                                        motorSnelheidLinks = moterSnelheid + 5;
-                                        motorSnelheidRechts = moterSnelheid - 5;
-                                        motorLinks.SetPower(Convert.ToSByte(motorSnelheidLinks));
-                                        motorRechts.SetPower(Convert.ToSByte(motorSnelheidRechts));
-                                    }
-                                    else
-                                    {
-                                        motorSnelheidLinks += 1;
-                                        motorSnelheidRechts -= 1;
-                                        motorLinks.SetPower(Convert.ToSByte(motorSnelheidLinks));
-                                        motorRechts.SetPower(Convert.ToSByte(motorSnelheidRechts));
-                                    }
+                                // draait te ver naar rechts
+                                if ((beginGraad - 5) < huidigeHoek)
+                                {
+                                    RH_motorSnelheidLinks = motorSnelheidLinksBegin + 5;
+                                    RH_motorSnelheidRechts = motorSnelheidRechtsBegin - 5;
+                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
+                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
                                 }
+                                // zit nog binnen de marges
+                                else
+                                {
+                                    RH_motorSnelheidLinks += 1;
+                                    motorSnelheidRechts -= 1;
+                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
+                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
+                                }
+                            }
+                            //draait naar links
                             else
                             {
-                                    if((beginGraad + 5) > huidigeHoek)
+                                // draait te ver naar links
+                                if ((beginGraad + 5) > huidigeHoek)
                                 {
-                                        motorSnelheidLinks = moterSnelheid - 5;
-                                        motorSnelheidRechts = moterSnelheid + 5;
-                                        motorLinks.SetPower(Convert.ToSByte(motorSnelheidLinks));
-                                        motorRechts.SetPower(Convert.ToSByte(motorSnelheidRechts));
-                                    } else
-                                    {
-                                        motorSnelheidLinks -= 1;
-                                        motorSnelheidRechts += 1;
-                                        motorLinks.SetPower(Convert.ToSByte(motorSnelheidLinks));
-                                        motorRechts.SetPower(Convert.ToSByte(motorSnelheidRechts));
-                                    }
+                                    RH_motorSnelheidLinks = motorSnelheidLinksBegin - 5;
+                                    RH_motorSnelheidRechts = motorSnelheidRechtsBegin + 5;
+                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
+                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
                                 }
+                                // zit nog binnen de marges
+                                else
+                                {
+                                    RH_motorSnelheidLinks -= 1;
+                                    RH_motorSnelheidRechts += 1;
+                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
+                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
+                                }
+                            }
                         }
-                        Thread.Sleep(20);
+                        Thread.Sleep(5);
 
-                        
+
 
                     }
 
@@ -174,7 +206,7 @@ namespace LegoRobot
             isAanHetRijden = true;
 
             //maakt thread aan om tijdens het rijden recht te houden
-            Thread rechtHoudenT = new Thread(() => RechtHouden(snelheid));
+            Thread rechtHoudenT = new Thread(() => RechtHouden(motorSnelheidLinks, motorSnelheidRechts));
 
             // start thread om recht te houden
             rechtHoudenT.Start();
@@ -183,8 +215,8 @@ namespace LegoRobot
             LcdConsole.WriteLine($"Zet snelheid naar {snelheidSB}");
 
             // Zet motors aan en wacht voor een bepaalde tijd
-            motorLinks.SetPower(snelheidSB);
-            motorRechts.SetPower(snelheidSB);
+            motorLinks.SetPower(Convert.ToSByte(motorSnelheidLinks));
+            motorRechts.SetPower(Convert.ToSByte(motorSnelheidLinks));
             Thread.Sleep(tijd_ms);
 
             // Remd
