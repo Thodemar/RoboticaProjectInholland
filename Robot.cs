@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-
+using System.IO;
 
 using MonoBrickFirmware;
 using MonoBrickFirmware.Movement;
@@ -12,7 +12,6 @@ using MonoBrickFirmware.Display;
 using MonoBrickFirmware.Sensors;
 
 
-//using LegoRobot;
 
 namespace LegoRobot
 {
@@ -21,10 +20,8 @@ namespace LegoRobot
 
         private Motor motorLinks;
         private Motor motorRechts;
-        //private MotorSync motorLR;
 
-        int[] correctieMotorLR;
-
+        private int[] correctieMotorLR;
 
         private Motor motorArm;
 
@@ -34,32 +31,35 @@ namespace LegoRobot
         private bool isAanHetRijden = false;
 
         private int hoekTeller;
-        private bool vooruitRijden;
 
         public Robot(
-            Motor imotorLinks, Motor imotorRechts,
-            //MotorPort imotorLinks, MotorPort imotorRechts,
-            Motor imotorArm, EV3GyroSensor igyroSensor,
+            Motor imotorLinks, Motor imotorRechts, Motor imotorArm, 
+            EV3GyroSensor igyroSensor,
+
             int[] icorrectieArray)
         {
+            // motors 
             motorLinks = imotorLinks;
             motorRechts = imotorRechts;
             motorArm = imotorArm;
+            // sensor
             gyroSensor = igyroSensor;
             hoekTeller = GyroLezen();
+            //correctie moter
             correctieMotorLR = icorrectieArray;
-            //motorLR = new MotorSync(imotorLinks, imotorRechts);
         }
 
 
-        public void VoortBewegen(int tijd_ms, int snelheid, bool vooruit)
+        public void VoortBewegen(int tijd_ms, int snelheid, bool vooruit = true)
         // tijd_ms: Hoelang bewegen
         // snelheid: welk percentage snelheid bewegen
         // vooruit: Welke richting, True is vooruit, False is achteruit
         {
+
+            
             // maakt variable aan dat gebruikt kan worden om te kijken of de robot recht rijd
             int beginGraad = hoekTeller; // lees gyro uit
-            vooruitRijden = vooruit;
+
 
             int motorSnelheidLinks = snelheid + correctieMotorLR[0];
             int motorSnelheidRechts = snelheid + correctieMotorLR[1];
@@ -67,7 +67,7 @@ namespace LegoRobot
 
 
             // flipt de snelheid als hij achteruit moet rijden
-            if (vooruitRijden == false)
+            if (vooruit == false)
             {
                 motorSnelheidLinks *=-1;
                 motorSnelheidRechts *= -1;
@@ -76,126 +76,136 @@ namespace LegoRobot
             // Snelheid een waarde maken waar de motors wat mee kunnen
             sbyte snelheidSB = Convert.ToSByte(snelheid);
 
+            //-----------------
+
+            //debug
+            // Get the current directory of the application
+            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Define the file name
+            string fileName = "output.txt";
+
+            // Define the full path to the file
+            string filePath = Path.Combine(currentDirectory, fileName);
+
+            File.AppendAllText(filePath, $"de start angele is {beginGraad}  \n");
+
+
+            //-----------------
+
+
+
+
 
             //functie voor gryo om de robot recht te houden
-            void RechtHouden(int RH_motorSnelheidLinks, int RH_motorSnelheidRechts)
+            void Rijden(int RH_motorSnelheidLinks, int RH_motorSnelheidRechts)
             {
-
-
-
-
-                // niet nodig atm
-                //int motorSnelheidLinksRH = motorSnelheidLinks;
-                //int motorSnelheidRechtsRH = motorSnelheidRechts;
-
+                //start waardes motor
                 int motorSnelheidLinksBegin = RH_motorSnelheidLinks;
                 int motorSnelheidRechtsBegin = RH_motorSnelheidRechts;
 
+                //variable om te kijken of richting flipt
+                bool flipped = true;
 
                 while (isAanHetRijden)
                 {
+                   
 
                     int huidigeHoek = GyroLezen();
+
+                    //-----------------
+                    // Debug
                     LcdConsole.WriteLine($"{huidigeHoek}");
+                    File.AppendAllText(filePath, $"the huidige difference is (huid-begin) {huidigeHoek - beginGraad } , de rechtermoter doet: {RH_motorSnelheidRechts} , en de LINKER moter doet: {RH_motorSnelheidLinks} , naar links : {flipped} \n");
+                    //-----------------
+
+                    // Als niet recht door rijd
                     if (beginGraad != huidigeHoek)
                     {
-                        if (snelheid > 0)
+                        // Naar rechts gedraaid
+                        if (beginGraad < huidigeHoek)
                         {
-                            // Naar rechts gedraaid
-                            if (beginGraad < huidigeHoek)
+                            // Als de robot van een correctie voor de andere kant af komt wordt dat hier op gevangen
+                            if (flipped == true)
                             {
-                                //Te ver naar rechts gedraaid
-                                if ((beginGraad + 5) < huidigeHoek) 
-                                {
-                                    RH_motorSnelheidLinks = motorSnelheidLinksBegin - 5;
-                                    RH_motorSnelheidRechts = motorSnelheidRechtsBegin + 5;
-                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
-                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
-                                }
-                                // zit nog binnen de marges
-                                else
-                                {
-                                    RH_motorSnelheidLinks -= 1;
-                                    RH_motorSnelheidRechts += 1;
-                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
-                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
-                                }
+                                flipped = false;
+                                RH_motorSnelheidLinks = motorSnelheidLinksBegin;
+                                RH_motorSnelheidRechts = motorSnelheidRechtsBegin;
+                                motorLinks.SetPower(Convert.ToSByte(motorSnelheidLinksBegin));
+                                motorRechts.SetPower(Convert.ToSByte(motorSnelheidRechtsBegin));
+                            }
 
+                                
+                            //Te hard aan het corrigeren
+                            if ((motorSnelheidRechtsBegin + 20) < RH_motorSnelheidRechts) 
+                            {
+                                RH_motorSnelheidLinks = motorSnelheidLinksBegin - 20;
+                                RH_motorSnelheidRechts = motorSnelheidRechtsBegin + 20;
+                                motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
+                                motorRechts.SetPower(Convert.ToSByte(motorSnelheidRechtsBegin));
                             }
-                            // Naar links gedraaid
+
+                            // zit nog binnen de marges
                             else
                             {
-                                // te ver naare links gedraaid
-                                if ((beginGraad - 5) > huidigeHoek)
-                                {
-                                    RH_motorSnelheidLinks = motorSnelheidLinksBegin + 5;
-                                    RH_motorSnelheidRechts = motorSnelheidRechtsBegin - 5;
-                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
-                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
-                                }
-                                // zit nog binnen de marges
-                                else
-                                {
-                                    RH_motorSnelheidLinks += 1;
-                                    motorSnelheidRechts -= 1;
-                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
-                                    motorRechts.SetPower(Convert.ToSByte(motorSnelheidRechts));
-                                }
+                                RH_motorSnelheidLinks -= 1;
+                                RH_motorSnelheidRechts += 1;
+                                motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
+                                motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
                             }
+
                         }
-                        // rijd achteruit
-                        else
+                        // Naar links gedraaid
+                        else if (beginGraad > huidigeHoek)
                         {
-                            // draait naar rechts
-                            if (beginGraad < huidigeHoek)
+                            // Als de robot van een correctie voor de andere kant af komt wordt dat hier op gevangen
+                            if (flipped == false)
                             {
-                                // draait te ver naar rechts
-                                if ((beginGraad - 5) < huidigeHoek)
-                                {
-                                    RH_motorSnelheidLinks = motorSnelheidLinksBegin + 5;
-                                    RH_motorSnelheidRechts = motorSnelheidRechtsBegin - 5;
-                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
-                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
-                                }
-                                // zit nog binnen de marges
-                                else
-                                {
-                                    RH_motorSnelheidLinks += 1;
-                                    motorSnelheidRechts -= 1;
-                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
-                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
-                                }
+                                flipped = true;
+                                RH_motorSnelheidLinks = motorSnelheidLinksBegin;
+                                RH_motorSnelheidRechts = motorSnelheidRechtsBegin;
+                                motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
+                                motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
                             }
-                            //draait naar links
+
+                                
+
+                            // corigeerd te hard
+                            if ((motorSnelheidLinksBegin + 20) < RH_motorSnelheidLinks)
+                            {
+                                RH_motorSnelheidLinks = motorSnelheidLinksBegin + 20;
+                                RH_motorSnelheidRechts = motorSnelheidRechtsBegin - 20;
+                                motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
+                                motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
+                            }
+                            // zit nog binnen de marges
                             else
                             {
-                                // draait te ver naar links
-                                if ((beginGraad + 5) > huidigeHoek)
-                                {
-                                    RH_motorSnelheidLinks = motorSnelheidLinksBegin - 5;
-                                    RH_motorSnelheidRechts = motorSnelheidRechtsBegin + 5;
-                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
-                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
-                                }
-                                // zit nog binnen de marges
-                                else
-                                {
-                                    RH_motorSnelheidLinks -= 1;
-                                    RH_motorSnelheidRechts += 1;
-                                    motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
-                                    motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
-                                }
+                                RH_motorSnelheidLinks += 1;
+                                RH_motorSnelheidRechts -= 1;
+                                motorLinks.SetPower(Convert.ToSByte(RH_motorSnelheidLinks));
+                                motorRechts.SetPower(Convert.ToSByte(RH_motorSnelheidRechts));
                             }
-                        }
-                        Thread.Sleep(5);
+                        } 
+
+                        Thread.Sleep(50);
 
 
 
                     }
 
+                    // rijdt recht
+                    else
+                    {
+                        RH_motorSnelheidLinks = motorSnelheidLinksBegin;
+                        RH_motorSnelheidRechts = motorSnelheidRechtsBegin;
+                        motorLinks.SetPower(Convert.ToSByte(motorSnelheidLinksBegin));
+                        motorRechts.SetPower(Convert.ToSByte(motorSnelheidRechtsBegin));
+                    }
 
                 }
 
+                // remt wanneer wacht process klaar is
                 motorLinks.Brake();
                 motorRechts.Brake();
                 LcdConsole.WriteLine($"geremd");
@@ -206,31 +216,19 @@ namespace LegoRobot
             isAanHetRijden = true;
 
             //maakt thread aan om tijdens het rijden recht te houden
-            Thread rechtHoudenT = new Thread(() => RechtHouden(motorSnelheidLinks, motorSnelheidRechts));
+            Thread rechtHoudenT = new Thread(() => Rijden(motorSnelheidLinks, motorSnelheidRechts));
 
             // start thread om recht te houden
             rechtHoudenT.Start();
 
-            // Print de snelheid
-            LcdConsole.WriteLine($"Zet snelheid naar {snelheidSB}");
-
-            // Zet motors aan en wacht voor een bepaalde tijd
-            motorLinks.SetPower(Convert.ToSByte(motorSnelheidLinks));
-            motorRechts.SetPower(Convert.ToSByte(motorSnelheidLinks));
+            // werkt als timer
             Thread.Sleep(tijd_ms);
 
-            // Remd
-            LcdConsole.WriteLine("Remmen");
-            motorLinks.Brake();
-            motorRechts.Brake();
-
-            // Zet dit op false zodat de rechthouden weet dat ie kan stoppen
+            // Zorgt dat rij process stopt
             isAanHetRijden = false;
 
             // brengt de threads samen
             rechtHoudenT.Join();
-
-            Thread.Sleep(3000);
 
 
         }
