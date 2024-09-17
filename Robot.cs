@@ -52,7 +52,7 @@ namespace LegoRobot
 
         public void VoortBewegen(int tijd_ms, int snelheid, bool vooruit = true)
         // tijd_ms: Hoelang bewegen
-        // snelheid: welk percentage snelheid bewegen
+        // snelheid: Int value tussen 0 en 100
         // vooruit: Welke richting, True is vooruit, False is achteruit
         {
 
