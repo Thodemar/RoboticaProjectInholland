@@ -42,7 +42,35 @@ namespace RoboticaProject
             // Maakt de robot aan
             Robot legoRobot = new LegoRobot.Robot(motorLinks, motorRechts, motorArm, gyroSensor,correctie);
 
-            legoRobot.VoortBewegen(20000, 60, false);
+            LcdConsole.WriteLine($"Boe");
+
+
+
+            legoRobot.DraaienNaar(-100);
+            legoRobot.DraaienNaar(-200);
+            legoRobot.DraaienNaar(0);
+            legoRobot.DraaienNaar(-340);
+            legoRobot.DraaienHoeveelheidGraden(-40);
+            legoRobot.DraaienNaar(90);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            //legoRobot.VoortBewegen(3000, 40, true);
             //legoRobot.DraaienHoeveelheidGraden(90);
 
             //legoRobot.VoortBewegen(3000, 40, true);
