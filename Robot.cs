@@ -10,6 +10,7 @@ using MonoBrickFirmware;
 using MonoBrickFirmware.Movement;
 using MonoBrickFirmware.Display;
 using MonoBrickFirmware.Sensors;
+using MonoBrickFirmware.UserInput;
 
 
 
@@ -25,6 +26,8 @@ namespace LegoRobot
 
         private Motor motorArm;
 
+
+        private EV3UltrasonicSensor ultrasonicSensor;
         private EV3GyroSensor gyroSensor;
 
 
@@ -36,7 +39,7 @@ namespace LegoRobot
         public Robot(
             Motor imotorLinks, Motor imotorRechts, Motor imotorArm, 
             EV3GyroSensor igyroSensor,
-
+            EV3UltrasonicSensor iultrasonicSensor,
             int[] icorrectieArray)
         {
             // motors 
@@ -46,6 +49,7 @@ namespace LegoRobot
             // sensor
             gyroSensor = igyroSensor;
             hoekTeller = GyroLezen();
+            ultrasonicSensor = iultrasonicSensor;
             //correctie moter
             correctieMotorLR = icorrectieArray;
         }
@@ -53,7 +57,7 @@ namespace LegoRobot
 
         public void VoortBewegen(int tijd_ms, int snelheid, bool vooruit = true)
         // tijd_ms: Hoelang bewegen
-        // snelheid: welk percentage snelheid bewegen
+        // snelheid: Int value tussen 0 en 100
         // vooruit: Welke richting, True is vooruit, False is achteruit
         {
 
@@ -681,5 +685,18 @@ namespace LegoRobot
                 plusRichting = 0;
             }
         }
+        public void Armbewegen(sbyte snel, uint rampUp, uint cons, uint rampDown)
+        {
+            motorArm.SpeedProfile(snel, rampUp, cons, rampDown, true);
+        }
+
+        public void Ultrasonic()
+        {
+            int afstand = ultrasonicSensor.Read();
+            LcdConsole.WriteLine($"{afstand}");
+
+        }
+      
+        
     }
 }
