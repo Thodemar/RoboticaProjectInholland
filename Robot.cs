@@ -242,7 +242,7 @@ namespace LegoRobot
         }
 
 
-        
+
 
 
         public void DraaienNaar(int richting, sbyte draaiSnelhed = 40)
@@ -251,7 +251,7 @@ namespace LegoRobot
         // draaisnelheid: 20 tot 100 
         {
 
-            //-----------------
+           /* //-----------------
 
             //debug
             // Get the current directory of the application
@@ -284,7 +284,7 @@ namespace LegoRobot
             //-----------------
             // Debug
             File.AppendAllText(filePath, $"Hoi ik ben hier wel. Mijn hoek is {richting} \n");
-            //-----------------
+            //-----------------*/
 
 
 
@@ -302,16 +302,16 @@ namespace LegoRobot
 
             int huidigeHoek = GyroLezen();
 
-            //-----------------
+            /*//-----------------
             // Debug
             File.AppendAllText(filePath, $"De hoek waar we op beginnen is {huidigeHoek} \n");
-            //-----------------
+            //-----------------*/
 
             TegenovergesteldeHoek(richting, out negatieveRichting, out positieveRichting);
-           
+
 
             int verschilTussenHoeken;
-            
+
 
 
 
@@ -329,10 +329,10 @@ namespace LegoRobot
                 }
 
 
-                //-----------------
+                /*//-----------------
                 // Debug
                 File.AppendAllText(filePath, $"Het verschil is : {verschilTussenHoeken} \n");
-                //-----------------
+                //-----------------*/
 
 
                 // als het veschil hoger is dan 180 zet dan klapover op true want dan gaat de robot over 360 / 0 heen
@@ -363,10 +363,10 @@ namespace LegoRobot
                     verschilTussenHoeken *= -1;
                 }
 
-                //-----------------
+                /*//-----------------
                 // Debug
                 File.AppendAllText(filePath, $"Het verschil is : {verschilTussenHoeken} \n");
-                //-----------------
+                //-----------------*/
 
                 // als het veschil hoger is dan 180 zet dan klapover op true want dan gaat de robot over 360 / 0 heen
                 if (verschilTussenHoeken > 180)
@@ -383,14 +383,14 @@ namespace LegoRobot
                 }
             }
 
-            
+
 
             // De functie die daatwerkelijk het draaien doet met de motors. Doet dit met beide wielen
             void Draaien(int draaiRichting)
             {
                 int echteSnelheid = draaiSnelhed;
 
-                //-----------------
+/*                //-----------------
                 // Debug
                 File.AppendAllText(filePath, $"Ik draai naar {draaiRichting} , ik klap over 360 : {klapOver360} en gryo wisselt {gyroGaatWisselen} \n");
                 //-----------------
@@ -398,7 +398,7 @@ namespace LegoRobot
                 //-----------------
                 // Debug
                 File.AppendAllText(filePath, $"{huidigeHoek} P {positieveRichting} N {negatieveRichting} \n");
-                //-----------------
+                //-----------------*/
 
                 while (isAanHetDraaien)
                 {
@@ -422,7 +422,7 @@ namespace LegoRobot
                         if (verschilTussenHoeken < 40)
                         {
                             echteSnelheid = 10;
-                        } 
+                        }
                         else if (verschilTussenHoeken < 60)
                         {
                             echteSnelheid = draaiSnelhed / 2;
@@ -529,22 +529,21 @@ namespace LegoRobot
                 }
 
 
-                //-----------------
+                /*//-----------------
                 // Debug
                 File.AppendAllText(filePath2, $"Done \n");
-                //-----------------
+                //-----------------*/
 
 
 
 
+                //huidigeHoek = GyroLezen();
 
-                huidigeHoek = GyroLezen();
-
-                if (huidigeHoek != draaiRichting)
-                {
-                    //Draaien(draaiRichting);
-                }
-                else
+                //if (huidigeHoek != draaiRichting)
+                //{
+                //    //Draaien(draaiRichting);
+                //}
+                //else
                 {
                     hoekTeller = huidigeHoek;
                 }
@@ -555,26 +554,57 @@ namespace LegoRobot
 
 
 
+
+            void BugForceren()
+            {
+                for (int i = 0; i < 800; i++)
+                {
+                    if (isAanHetDraaien == false)
+                    {
+                        break;
+                    } else
+                    {
+                        Thread.Sleep(10);
+                    }
+                }
+
+                isAanHetDraaien = false;
+
+
+            }
+
+            //maakt thread aan om door een bug heen te forceren die soms opduikt en weet niet waarom
+            Thread forceerDoorBugHeen = new Thread(BugForceren);
+
+            // start thread om door de bug heen te forceren
+            forceerDoorBugHeen.Start();
+
+
+
+
+
+
             if (eindRichtingIsNegatief)
             {
                 isAanHetDraaien = true;
                 Draaien(negatieveRichting);
-                //-----------------
-                // Debug
-                File.AppendAllText(filePath, $"Ik draai met negatieve cijfers \n");
-                //-----------------
+                //    //-----------------
+                //    // Debug
+                //    File.AppendAllText(filePath, $"Ik draai met negatieve cijfers \n");
+                //    //-----------------
             }
             else
-            {
-                isAanHetDraaien = true;
-                Draaien(positieveRichting);
-                //-----------------
-                // Debug
-                File.AppendAllText(filePath, $"Ik draai met postieve cijfers \n");
-                //-----------------
-            }
+                {
+                    isAanHetDraaien = true;
+                    //Draaien(positieveRichting);
+                    ////-----------------
+                    //// Debug
+                    //File.AppendAllText(filePath, $"Ik draai met postieve cijfers \n");
+                    ////-----------------
+                }
 
-
+                // brengt de threads samen
+                forceerDoorBugHeen.Join();
         }
         
 
