@@ -48,7 +48,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MonoBrickFirmware">
-      <HintPath>..\..\..\..\Documents\robotica\Project Robotica\MonoBrickFirmware.dll</HintPath>
+      <HintPath>..\..\..\..\..\Downloads\Project Robotica\MonoBrickFirmware.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -30,6 +30,9 @@ namespace LegoRobot
         private EV3UltrasonicSensor ultrasonicSensor;
         private EV3GyroSensor gyroSensor;
 
+        private EV3TouchSensor knopRechts;
+        private EV3TouchSensor knopLinks;
+
 
         private bool isAanHetRijden = false;
         private bool isAanHetDraaien = false;
@@ -40,6 +43,7 @@ namespace LegoRobot
             Motor imotorLinks, Motor imotorRechts, Motor imotorArm, 
             EV3GyroSensor igyroSensor,
             EV3UltrasonicSensor iultrasonicSensor,
+            EV3TouchSensor iknopLinks, EV3TouchSensor iknopRechts,
             int[] icorrectieArray)
         {
             // motors 
@@ -50,6 +54,9 @@ namespace LegoRobot
             gyroSensor = igyroSensor;
             hoekTeller = GyroLezen();
             ultrasonicSensor = iultrasonicSensor;
+            // Knoppen
+            knopRechts = iknopRechts;
+            knopLinks = iknopLinks;
             //correctie moter
             correctieMotorLR = icorrectieArray;
         }
@@ -74,32 +81,12 @@ namespace LegoRobot
             // flipt de snelheid als hij achteruit moet rijden
             if (vooruit == false)
             {
-                motorSnelheidLinks *=-1;
+                motorSnelheidLinks *= -1;
                 motorSnelheidRechts *= -1;
             }
 
             // Snelheid een waarde maken waar de motors wat mee kunnen
             sbyte snelheidSB = Convert.ToSByte(snelheid);
-
-            //-----------------
-
-            //debug
-            // Get the current directory of the application
-            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-
-            // Define the file name
-            string fileName = "output.txt";
-
-            // Define the full path to the file
-            string filePath = Path.Combine(currentDirectory, fileName);
-
-            File.AppendAllText(filePath, $"de start angele is {beginGraad}  \n");
-
-
-            //-----------------
-
-
-
 
 
             //functie voor gryo om de robot recht te houden
@@ -118,11 +105,6 @@ namespace LegoRobot
 
                     int huidigeHoek = GyroLezen();
 
-                    //-----------------
-                    // Debug
-                    LcdConsole.WriteLine($"{huidigeHoek}");
-                    File.AppendAllText(filePath, $"the huidige difference is (huid-begin) {huidigeHoek - beginGraad } , de rechtermoter doet: {RH_motorSnelheidRechts} , en de LINKER moter doet: {RH_motorSnelheidLinks} , naar links : {gewisseld} \n");
-                    //-----------------
 
                     // Als niet recht door rijd
                     if (beginGraad != huidigeHoek)
@@ -238,7 +220,7 @@ namespace LegoRobot
 
         }
 
-        public void Reizen(int tijd_ms, bool vooruit)
+        public void Reizen(int tijd_ms, bool vooruit = true)
         // tijd_ms: Hoelang bewegen
         // vooruit: Welke richting, True is vooruit, False is achteruit
         {
@@ -255,45 +237,6 @@ namespace LegoRobot
         // draaisnelheid: 20 tot 100 
         {
 
-           /* //-----------------
-
-            //debug
-            // Get the current directory of the application
-            string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-
-            // Define the file name
-            string fileName = "output1.txt";
-
-            // Define the full path to the file
-            string filePath = Path.Combine(currentDirectory, fileName);
-
-
-            //-----------------
-
-            //-----------------
-
-            //debug
-            // Get the current directory of the application
-            string currentDirectory2 = AppDomain.CurrentDomain.BaseDirectory;
-
-            // Define the file name
-            string fileName2 = "output2.txt";
-
-            // Define the full path to the file
-            string filePath2 = Path.Combine(currentDirectory2, fileName2);
-
-
-            //-----------------
-
-            //-----------------
-            // Debug
-            File.AppendAllText(filePath, $"Hoi ik ben hier wel. Mijn hoek is {richting} \n");
-            //-----------------*/
-
-
-
-
-
 
             richting = richting % 360; //Om hoeken boven 360 op te vangen
 
@@ -306,10 +249,7 @@ namespace LegoRobot
 
             int huidigeHoek = GyroLezen();
 
-            /*//-----------------
-            // Debug
-            File.AppendAllText(filePath, $"De hoek waar we op beginnen is {huidigeHoek} \n");
-            //-----------------*/
+
 
             TegenovergesteldeHoek(richting, out negatieveRichting, out positieveRichting);
 
@@ -332,11 +272,6 @@ namespace LegoRobot
                     verschilTussenHoeken *= -1;
                 }
 
-
-                /*//-----------------
-                // Debug
-                File.AppendAllText(filePath, $"Het verschil is : {verschilTussenHoeken} \n");
-                //-----------------*/
 
 
                 // als het veschil hoger is dan 180 zet dan klapover op true want dan gaat de robot over 360 / 0 heen
@@ -367,10 +302,6 @@ namespace LegoRobot
                     verschilTussenHoeken *= -1;
                 }
 
-                /*//-----------------
-                // Debug
-                File.AppendAllText(filePath, $"Het verschil is : {verschilTussenHoeken} \n");
-                //-----------------*/
 
                 // als het veschil hoger is dan 180 zet dan klapover op true want dan gaat de robot over 360 / 0 heen
                 if (verschilTussenHoeken > 180)
@@ -394,24 +325,13 @@ namespace LegoRobot
             {
                 int echteSnelheid = draaiSnelhed;
 
-/*                //-----------------
-                // Debug
-                File.AppendAllText(filePath, $"Ik draai naar {draaiRichting} , ik klap over 360 : {klapOver360} en gryo wisselt {gyroGaatWisselen} \n");
-                //-----------------
-
-                //-----------------
-                // Debug
-                File.AppendAllText(filePath, $"{huidigeHoek} P {positieveRichting} N {negatieveRichting} \n");
-                //-----------------*/
 
                 while (isAanHetDraaien)
                 {
                     huidigeHoek = GyroLezen();
+                    LcdConsole.WriteLine($"HH {huidigeHoek} RH {draaiRichting}");
 
-                    ////-----------------
-                    //// Debug
-                    //File.AppendAllText(filePath2, $"{huidigeHoek} \n");
-                    ////-----------------
+
 
 
                     if (huidigeHoek < 0)
@@ -477,7 +397,7 @@ namespace LegoRobot
 
                     if (draaiRichting != huidigeHoek)
                     {
-                        // klappen over de 360 / 0
+                        //klappen over de 360 / 0
                         if (klapOver360)
                         {
                             // draai naar links
@@ -532,22 +452,6 @@ namespace LegoRobot
 
                 }
 
-
-                /*//-----------------
-                // Debug
-                File.AppendAllText(filePath2, $"Done \n");
-                //-----------------*/
-
-
-
-
-                //huidigeHoek = GyroLezen();
-
-                //if (huidigeHoek != draaiRichting)
-                //{
-                //    //Draaien(draaiRichting);
-                //}
-                //else
                 {
                     hoekTeller = huidigeHoek;
                 }
@@ -592,23 +496,17 @@ namespace LegoRobot
             {
                 isAanHetDraaien = true;
                 Draaien(negatieveRichting);
-                //    //-----------------
-                //    // Debug
-                //    File.AppendAllText(filePath, $"Ik draai met negatieve cijfers \n");
-                //    //-----------------
+
             }
             else
                 {
                     isAanHetDraaien = true;
-                    //Draaien(positieveRichting);
-                    ////-----------------
-                    //// Debug
-                    //File.AppendAllText(filePath, $"Ik draai met postieve cijfers \n");
-                    ////-----------------
+                Draaien(positieveRichting);
+
                 }
 
                 // brengt de threads samen
-                forceerDoorBugHeen.Join();
+            forceerDoorBugHeen.Join();
         }
         
 
@@ -696,6 +594,35 @@ namespace LegoRobot
             LcdConsole.WriteLine($"{afstand}");
 
         }
+
+        private bool GSKnop(EV3TouchSensor knop)
+        // functie voor het uitlezen van een knop. Is private want heeft een knop nodig die allemaal private zijn dus kan alleen aangeroepen worden door andere functies in de class
+        // knop: een EV3Touchsensor
+        {
+            return knop.IsPressed();
+        }
+
+        public bool GetStatusKnop(bool isKnopRechts)
+        // Omdat er twee knoppen opzitten en de knoppen private zijn geeft 
+        // bool isKnopRechts: bepaald of het over de knop rechts of links gaat
+        {
+            if (isKnopRechts == true)
+            {
+                return GSKnop(knopRechts);
+            }
+            else
+            {
+                return GSKnop(knopLinks);
+            }
+        }
+
+        public void ResetGyro()
+        //Functie voor het resetten van gyro want gyro is niet buitem class bereikbaar
+        {
+            gyroSensor.Reset();
+        }
+
+
       
         
     }

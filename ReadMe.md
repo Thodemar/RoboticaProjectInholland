@@ -2,4 +2,4 @@
 
 
 Nog te doen:
-- Bug uit draaiennaar halen
+- Bug uit draaiennaar halen (Bugg gecompenseerd)
