@@ -41,8 +41,8 @@ namespace RoboticaProject
             // Moter voor de arm
             Motor motorArm = new Motor(MotorPort.OutB);
 
-            EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.In1, GyroMode.Angle);
-            EV3UltrasonicSensor ultraultrasonicSensor = new EV3UltrasonicSensor(SensorPort.In4, UltraSonicMode.Centimeter);
+            EV3GyroSensor gyroSensor = new EV3GyroSensor(SensorPort.In4, GyroMode.Angle);
+            EV3UltrasonicSensor ultraultrasonicSensor = new EV3UltrasonicSensor(SensorPort.In1, UltraSonicMode.Centimeter);
 
 
 
@@ -54,14 +54,26 @@ namespace RoboticaProject
 
             Robot legoRobot = new LegoRobot.Robot(motorLinks, motorRechts, motorArm, gyroSensor, ultraultrasonicSensor,knopLinks,knopRechts, correctie);
 
+            legoRobot.ArmBewegen(75,50);
+            //LcdConsole.WriteLine(Convert.ToString(legoRobot.GetUltrasonicSensor()));
+            Thread.Sleep(3000);
+
+
+
+
+
+
+
+
+
             //legoRobot.Reizen(500,true);
 
 
-            legoRobot.DraaienNaar(90);
+            //legoRobot.DraaienNaar(90);
             //legoRobot.DraaienHoeveelheidGraden(50);
             //Thread.Sleep(3000);
-            legoRobot.Reizen(3600);
-            legoRobot.DraaienNaar(0);
+            //legoRobot.Reizen(3600);
+            //legoRobot.DraaienNaar(0);
             //legoRobot.Reizen(1000);
 
 
@@ -123,7 +135,7 @@ namespace RoboticaProject
             //{
             //    LcdConsole.WriteLine($"Gyro sensor: {gyroSensor.Read()}");
             //    LcdConsole.WriteLine($"Gyro sensor: {gyroSensor.ReadAsString()}");
-            //    Thread.Sleep(100);
+            //Thread.Sleep(100);
             //}
 
             //}

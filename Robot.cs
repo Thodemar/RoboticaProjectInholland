@@ -36,6 +36,7 @@ namespace LegoRobot
 
         private bool isAanHetRijden = false;
         private bool isAanHetDraaien = false;
+        private bool isArmAanHetBewegen = false;
 
         private int hoekTeller;
 
@@ -583,15 +584,18 @@ namespace LegoRobot
                 plusRichting = 0;
             }
         }
-        public void Armbewegen(sbyte snel, uint rampUp, uint cons, uint rampDown)
+        public void ArmBewegen(sbyte snel, uint rampUp, uint cons, uint rampDown)
         {
             motorArm.SpeedProfile(snel, rampUp, cons, rampDown, true);
         }
 
-        public void Ultrasonic()
+
+        public int GetUltrasonicSensor()
+        // geeft de waarde van de UltrasonicSesonsor terug zodat je die kan opvragen buiten de class
+        // return value is een int met de waarde bam de ultrasonic sensor
+
         {
-            int afstand = ultrasonicSensor.Read();
-            LcdConsole.WriteLine($"{afstand}");
+            return ultrasonicSensor.Read();
 
         }
 
@@ -616,14 +620,27 @@ namespace LegoRobot
             }
         }
 
-        public void ResetGyro()
+        public void HerstartGyro()
         //Functie voor het resetten van gyro want gyro is niet buitem class bereikbaar
         {
             gyroSensor.Reset();
         }
 
 
-      
-        
+        public int GetGyroWaarde()
+        // Getter om de Gyro waarde aan te vragen buiten de class
+        // geeft de waarde van gyro als int terug
+        {
+            return gyroSensor.Read();
+        }
+
+        public void ArmBewegen(int tachoInput, int snelheid) 
+        {
+            
+
+        }
+
+
+
     }
 }
