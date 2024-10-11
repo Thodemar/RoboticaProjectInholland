@@ -634,13 +634,74 @@ namespace LegoRobot
             return gyroSensor.Read();
         }
 
-        public void ArmBewegen(int tachoInput, int snelheid) 
+        public void ArmBewegen(int tachoInput, int snelheid)
+        // Beweegt de arm
+        // tachoInput: waardes 0 tot en met 75 worden gepakt. Alles hoger dan 75 wordt afgevange om te voorkomen dat de motor kapot gaat. Zelfde met onder 0
+        // Gaat ervanuit dat arm gacallibreerd is op grond
         {
-            
+            // ruimt de input op. Zorgt dat de arm niet gesloopt kan woorden
+            tachoInput = tachoInput % 76;
+            if (tachoInput < 0)
+            {
+                tachoInput *= -1;
+            }
+
+
+
+            isArmAanHetBewegen = true;
+
+            // beweegt arm tot klaar is met bewegen
+            while (isArmAanHetBewegen)
+            {
+                int tachoMotor = motorArm.GetTachoCount();
+                // als de tacho input waarde niet hetzelfde is tacho waarde van de motor
+                if (tachoInput != tachoMotor)
+                {
+                    // arm moet omhoog
+                    if (tachoInput > tachoMotor)
+                    {
+                        motorArm.SetSpeed(Convert.ToSByte(snelheid));
+
+                    }
+                    // arm moet omlaag
+                    else if ((tachoInput < tachoMotor))
+                    {
+                        motorArm.SetSpeed(Convert.ToSByte(-snelheid));
+
+                    }
+                    // geen idee wat je aan het doen bent dus rem maar
+                    else
+                    {
+                        motorArm.Brake();
+                    }
+                }
+                else
+                {
+                    motorArm.Brake();
+                    // arm staat op de juiste plek dus mag stoppen met while loop
+                    isArmAanHetBewegen = false;
+                }
+            }
 
         }
 
+        public void HerstelTachoTellerArm()
+        // Geeft mogelijkheid tot resetten van tacho. Motor is namelijk private
+        {
+            motorArm.ResetTacho();
+        }
 
 
+        public void ArmOmhoog()
+        // Functie om arm helemaal omhoog te verplaatsen
+        {
+            ArmBewegen(75, 50);
+        }
+
+        public void ArmOmlaag()
+        // Functie om arm naar begin plaats te verplaatsen
+        {
+            ArmBewegen(0, 50);
+        }
     }
 }

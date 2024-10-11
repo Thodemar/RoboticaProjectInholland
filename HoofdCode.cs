@@ -54,9 +54,12 @@ namespace RoboticaProject
 
             Robot legoRobot = new LegoRobot.Robot(motorLinks, motorRechts, motorArm, gyroSensor, ultraultrasonicSensor,knopLinks,knopRechts, correctie);
 
-            legoRobot.ArmBewegen(75,50);
+            legoRobot.ArmBewegen(75, 50);
+            legoRobot.ArmBewegen(0,50);
             //LcdConsole.WriteLine(Convert.ToString(legoRobot.GetUltrasonicSensor()));
             Thread.Sleep(3000);
+
+            
 
 
 
