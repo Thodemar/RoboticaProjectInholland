@@ -63,13 +63,21 @@ namespace LegoRobot
         }
 
 
-        public void VoortBewegen(int tijd_ms, int snelheid, bool vooruit = true)
-        // tijd_ms: Hoelang bewegen
+        public void VoortBewegen(int afstand, int snelheid, bool vooruit = true)
+        // afstand: Hoever de auto moet bewegen
         // snelheid: Int value tussen 0 en 100
         // vooruit: Welke richting, True is vooruit, False is achteruit
         {
 
-            
+            motorRechts.ResetTacho();
+            motorLinks.ResetTacho();
+
+            double omtrekBand = 17.59;
+            double eenTachoAfstandCM = omtrekBand / 360;
+
+            int tachoAfstand = (int)(afstand / eenTachoAfstandCM);
+
+
             // maakt variable aan dat gebruikt kan worden om te kijken of de robot recht rijd
             int beginGraad = hoekTeller; // lees gyro uit
 
@@ -106,6 +114,8 @@ namespace LegoRobot
 
                     int huidigeHoek = GyroLezen();
 
+
+                    //LcdConsole.WriteLine($"{beginGraad}");
 
                     // Als niet recht door rijd
                     if (beginGraad != huidigeHoek)
@@ -209,8 +219,26 @@ namespace LegoRobot
             // start thread om recht te houden
             rijdenT.Start();
 
-            // werkt als timer
-            Thread.Sleep(tijd_ms);
+            // houdt bij of afstand al gehaald is
+            // vooruit rijden
+            if(vooruit == true)
+            {
+                while(motorRechts.GetTachoCount() < tachoAfstand)
+                {
+                    Thread.Sleep(2);
+                }
+            }
+            //achteruit rijden
+            else
+            {
+                //flip tachoafstand want we rijden achteruit
+                tachoAfstand *= -1;
+
+                while (motorRechts.GetTachoCount() > tachoAfstand)
+                {
+                    Thread.Sleep(2);
+                }
+            }
 
             // Zorgt dat rij process stopt
             isAanHetRijden = false;
@@ -221,11 +249,11 @@ namespace LegoRobot
 
         }
 
-        public void Reizen(int tijd_ms, bool vooruit = true)
+        public void Reizen(int afstand, bool vooruit = true)
         // tijd_ms: Hoelang bewegen
         // vooruit: Welke richting, True is vooruit, False is achteruit
         {
-            VoortBewegen(tijd_ms, 50, vooruit);
+            VoortBewegen(afstand, 50, vooruit);
         }
 
 
@@ -634,16 +662,23 @@ namespace LegoRobot
             return gyroSensor.Read();
         }
 
-        public void ArmBewegen(int tachoInput, int snelheid)
+        public void ArmBewegen(int tachoInput, int snelheid, bool calibratie = false)
         // Beweegt de arm
         // tachoInput: waardes 0 tot en met 75 worden gepakt. Alles hoger dan 75 wordt afgevange om te voorkomen dat de motor kapot gaat. Zelfde met onder 0
         // Gaat ervanuit dat arm gacallibreerd is op grond
         {
-            // ruimt de input op. Zorgt dat de arm niet gesloopt kan woorden
-            tachoInput = tachoInput % 76;
-            if (tachoInput < 0)
+            // als calibratie modus aan staat mag er meer
+            if (calibratie == false)
             {
-                tachoInput *= -1;
+                // ruimt de input op. Zorgt dat de arm niet gesloopt kan worden
+                tachoInput = tachoInput % 76;
+                if (tachoInput < 0)
+                {
+                    tachoInput *= -1;
+                }
+            } else
+            {
+                tachoInput = motorArm.GetTachoCount() + tachoInput;
             }
 
 
@@ -685,6 +720,8 @@ namespace LegoRobot
 
         }
 
+       
+
         public void HerstelTachoTellerArm()
         // Geeft mogelijkheid tot resetten van tacho. Motor is namelijk private
         {
@@ -702,6 +739,11 @@ namespace LegoRobot
         // Functie om arm naar begin plaats te verplaatsen
         {
             ArmBewegen(0, 50);
+        }
+
+        public void ResetHoektellerALLEENVOORCALIBRATIE()
+        {
+            hoekTeller = 0;
         }
     }
 }

@@ -22,8 +22,91 @@ namespace RoboticaProject
 {
 
 
+
+
     class MainClass
     {
+        static void KillSwitch()
+        {
+            Environment.Exit(0);
+        }
+
+        static Robot Caliberen(Robot legoRobotCal)
+        // Calibreert de robot voor de run
+        {
+            // Prompt om te vragen of door te gaan met caliberen
+            void AskToKill()
+            {
+                LcdConsole.WriteLine("\n\nOmdoor te gaan klik rechter knop, om af te breken klik linker knop\n\n");
+
+                while (legoRobotCal.GetStatusKnop(true) == false)
+                {
+                    if (legoRobotCal.GetStatusKnop(false))
+                    {
+                        KillSwitch();
+                    }
+                }
+            }
+
+            //// Test de motors
+            //legoRobotCal.DraaienHoeveelheidGraden(-20);
+            //legoRobotCal.DraaienHoeveelheidGraden(40);
+            //legoRobotCal.Reizen(1000);
+            //legoRobotCal.Reizen(1000, false);
+            //legoRobotCal.Reizen(1000);
+
+
+            //LcdConsole.WriteLine("Bewegingsmotors getest");
+
+            //AskToKill();
+
+            //Thread.Sleep(2000);
+
+
+
+            // calibratie gyro
+            while (legoRobotCal.GetStatusKnop(true)==false)
+            {
+                if (legoRobotCal.GetStatusKnop(false))
+                {
+                    legoRobotCal.HerstartGyro();
+                }
+                LcdConsole.WriteLine(Convert.ToString(legoRobotCal.GetGyroWaarde()));
+                Thread.Sleep(100);
+            }
+            //legoRobotCal.HerstartGyro();
+            legoRobotCal.ResetHoektellerALLEENVOORCALIBRATIE();
+            LcdConsole.WriteLine("Calibratie Gyro geslaagd");
+
+            //Thread.Sleep(2000);
+
+            //AskToKill();
+
+            Thread.Sleep(2000);
+
+            LcdConsole.WriteLine("Calibratie Arm");
+            // brengt de arm naar benedene
+            while (legoRobotCal.GetStatusKnop(true) == false)
+            {
+                if (legoRobotCal.GetStatusKnop(false))
+                {
+                    legoRobotCal.ArmBewegen(-5, 20, true);
+                }
+
+                Thread.Sleep(1000);
+            }
+
+            legoRobotCal.HerstelTachoTellerArm();
+            LcdConsole.WriteLine("Calibratie Arm klaar");
+
+            legoRobotCal.ArmOmhoog();
+
+            return legoRobotCal;
+
+        }
+
+        
+
         static void Main(string[] args)
         {
             // Moters voor het aandrijven van de robot
@@ -35,7 +118,7 @@ namespace RoboticaProject
             EV3TouchSensor knopLinks = new EV3TouchSensor(SensorPort.In2);
 
 
-        //Knopjes
+            //Knopjes
             ButtonEvents buts = new ButtonEvents();
 
             // Moter voor de arm
@@ -54,9 +137,22 @@ namespace RoboticaProject
 
             Robot legoRobot = new LegoRobot.Robot(motorLinks, motorRechts, motorArm, gyroSensor, ultraultrasonicSensor,knopLinks,knopRechts, correctie);
 
-            legoRobot.ArmBewegen(75, 50);
-            legoRobot.ArmBewegen(0,50);
+
+
+            //legoRobot = Caliberen(legoRobot);
+
+            Thread.Sleep(1000);
+            legoRobot.Reizen(43);
+
+
+
+
+
+
+            //legoRobot.ArmBewegen(75, 50);
+            //legoRobot.ArmBewegen(0,50);
             //LcdConsole.WriteLine(Convert.ToString(legoRobot.GetUltrasonicSensor()));
+            
             Thread.Sleep(3000);
 
             
