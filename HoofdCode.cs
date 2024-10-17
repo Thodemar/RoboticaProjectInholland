@@ -53,7 +53,7 @@ namespace RoboticaProject
             //legoRobotCal.DraaienHoeveelheidGraden(40);
             //legoRobotCal.Reizen(1000);
             //legoRobotCal.Reizen(1000, false);
-            //legoRobotCal.Reizen(1000);
+            //legoRobotCal.Reizen(3);
 
 
             //LcdConsole.WriteLine("Bewegingsmotors getest");
@@ -131,28 +131,101 @@ namespace RoboticaProject
 
 
 
-            int[] correctie = { 2, //Links
+            int[] correctie = { 0, //Links
                 0 }; // Rechts
 
 
             Robot legoRobot = new LegoRobot.Robot(motorLinks, motorRechts, motorArm, gyroSensor, ultraultrasonicSensor,knopLinks,knopRechts, correctie);
 
+            bool killSwitchAan = false;
 
-
-            //legoRobot = Caliberen(legoRobot);
+            void KillSwitchRun()
+            {
+                while (killSwitchAan)
+                {
+                    if (legoRobot.GetStatusKnop(false))
+                    {
+                        legoRobot.KILLMOTORS();
+                        KillSwitch();
+                    }
+                    Thread.Sleep(100);
+                }
+            }
 
             Thread.Sleep(1000);
-            legoRobot.Reizen(43);
+            legoRobot = Caliberen(legoRobot);
+            Thread.Sleep(1000);
 
 
 
 
+            void HaaiHalen()
+            {
+                legoRobot.Reizen(72);
+                legoRobot.DraaienNaar(-48);
+                legoRobot.Reizen(2);
+                legoRobot.ArmOmlaag();
+                Thread.Sleep(300);
+                legoRobot.ArmOmhoog();
+                legoRobot.Reizen(2, false);
+                legoRobot.DraaienNaar(0);
+                legoRobot.Reizen(34,false);
+                legoRobot.DraaienNaar(90);
+                legoRobot.ArmOmlaag();
+                legoRobot.Reizen(12);
+                legoRobot.ArmBewegen(60, 120);
+
+
+
+
+
+
+
+            }
+
+
+
+            void Octopus()
+            {
+                legoRobot.DraaienNaar(-45);
+                legoRobot.Reizen(53);
+                legoRobot.Reizen(3, false);
+                legoRobot.DraaienHoeveelheidGraden(-47);
+                legoRobot.Reizen(37);
+                legoRobot.DraaienHoeveelheidGraden(90);
+                legoRobot.Reizen(15);
+                legoRobot.ArmOmlaag();
+            }
+
+            //legoRobot.Reizen(5);
+            Thread killThread = new Thread(KillSwitchRun);
+
+            killSwitchAan = true;
+
+            killThread.Start();
+
+
+            Octopus();
+
+            killSwitchAan = false;
+
+            killThread.Join();
+
+
+            //legoRobot.MOTORTEST(5000, 49, 50);
+
+
+            Thread.Sleep(1000);
 
 
             //legoRobot.ArmBewegen(75, 50);
             //legoRobot.ArmBewegen(0,50);
             //LcdConsole.WriteLine(Convert.ToString(legoRobot.GetUltrasonicSensor()));
-            
+
+            legoRobot.ArmOmlaag();
+
+
+
             Thread.Sleep(3000);
 
             

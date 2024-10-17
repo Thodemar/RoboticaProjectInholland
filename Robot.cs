@@ -664,14 +664,14 @@ namespace LegoRobot
 
         public void ArmBewegen(int tachoInput, int snelheid, bool calibratie = false)
         // Beweegt de arm
-        // tachoInput: waardes 0 tot en met 75 worden gepakt. Alles hoger dan 75 wordt afgevange om te voorkomen dat de motor kapot gaat. Zelfde met onder 0
+        // tachoInput: waardes 0 tot en met 80 worden gepakt. Alles hoger dan 75 wordt afgevange om te voorkomen dat de motor kapot gaat. Zelfde met onder 0
         // Gaat ervanuit dat arm gacallibreerd is op grond
         {
             // als calibratie modus aan staat mag er meer
             if (calibratie == false)
             {
                 // ruimt de input op. Zorgt dat de arm niet gesloopt kan worden
-                tachoInput = tachoInput % 76;
+                tachoInput = tachoInput % 81;
                 if (tachoInput < 0)
                 {
                     tachoInput *= -1;
@@ -732,7 +732,9 @@ namespace LegoRobot
         public void ArmOmhoog()
         // Functie om arm helemaal omhoog te verplaatsen
         {
-            ArmBewegen(75, 50);
+            ArmBewegen(60, 50);
+            Thread.Sleep(2);
+            ArmBewegen(80, 20);
         }
 
         public void ArmOmlaag()
@@ -744,6 +746,27 @@ namespace LegoRobot
         public void ResetHoektellerALLEENVOORCALIBRATIE()
         {
             hoekTeller = 0;
+        }
+
+        public void MOTORTEST(int time, sbyte links , sbyte rechts)
+        {
+            {
+                motorLinks.SetSpeed(links);
+                motorRechts.SetSpeed(rechts);
+
+                Thread.Sleep(time);
+
+                motorRechts.Brake();
+                motorLinks.Brake();
+            }
+        }
+
+        public void KILLMOTORS()
+        {
+            motorArm.Brake();
+            motorLinks.Brake();
+            motorRechts.Brake();
+
         }
     }
 }
