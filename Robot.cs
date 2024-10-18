@@ -409,7 +409,7 @@ namespace LegoRobot
                         // dicht bij doel gaat de snelheid door de helft
                         if (verschilTussenHoeken < 20)
                         {
-                            echteSnelheid = 2;
+                            echteSnelheid = 10;
                         }
 
                         // als het veschil hoger is dan 180 zet dan klapover op true want dan gaat de robot over 360 / 0 heen
@@ -494,7 +494,7 @@ namespace LegoRobot
 
             void BugForceren()
             {
-                for (int i = 0; i < 800; i++)
+                for (int i = 0; i < 500; i++)
                 {
                     if (isAanHetDraaien == false)
                     {
@@ -664,14 +664,14 @@ namespace LegoRobot
 
         public void ArmBewegen(int tachoInput, int snelheid, bool calibratie = false)
         // Beweegt de arm
-        // tachoInput: waardes 0 tot en met 80 worden gepakt. Alles hoger dan 75 wordt afgevange om te voorkomen dat de motor kapot gaat. Zelfde met onder 0
+        // tachoInput: waardes 0 tot en met 90 worden gepakt. Alles hoger dan 90 wordt afgevange om te voorkomen dat de motor kapot gaat. Zelfde met onder 0
         // Gaat ervanuit dat arm gacallibreerd is op grond
         {
             // als calibratie modus aan staat mag er meer
             if (calibratie == false)
             {
                 // ruimt de input op. Zorgt dat de arm niet gesloopt kan worden
-                tachoInput = tachoInput % 81;
+                tachoInput = tachoInput % 91;
                 if (tachoInput < 0)
                 {
                     tachoInput *= -1;
@@ -734,7 +734,7 @@ namespace LegoRobot
         {
             ArmBewegen(60, 50);
             Thread.Sleep(2);
-            ArmBewegen(80, 20);
+            ArmBewegen(85, 20);
         }
 
         public void ArmOmlaag()
@@ -749,6 +749,7 @@ namespace LegoRobot
         }
 
         public void MOTORTEST(int time, sbyte links , sbyte rechts)
+        // Snelle test of motors gelijk zijn
         {
             {
                 motorLinks.SetSpeed(links);
@@ -762,6 +763,7 @@ namespace LegoRobot
         }
 
         public void KILLMOTORS()
+        // functie voor het killen van alle motors
         {
             motorArm.Brake();
             motorLinks.Brake();

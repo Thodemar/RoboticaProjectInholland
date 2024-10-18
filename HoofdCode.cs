@@ -90,7 +90,7 @@ namespace RoboticaProject
             {
                 if (legoRobotCal.GetStatusKnop(false))
                 {
-                    legoRobotCal.ArmBewegen(-5, 20, true);
+                    legoRobotCal.ArmBewegen(-10, 20, true);
                 }
 
                 Thread.Sleep(1000);
@@ -105,7 +105,7 @@ namespace RoboticaProject
 
         }
 
-        
+
 
         static void Main(string[] args)
         {
@@ -135,7 +135,7 @@ namespace RoboticaProject
                 0 }; // Rechts
 
 
-            Robot legoRobot = new LegoRobot.Robot(motorLinks, motorRechts, motorArm, gyroSensor, ultraultrasonicSensor,knopLinks,knopRechts, correctie);
+            Robot legoRobot = new LegoRobot.Robot(motorLinks, motorRechts, motorArm, gyroSensor, ultraultrasonicSensor, knopLinks, knopRechts, correctie);
 
             bool killSwitchAan = false;
 
@@ -156,46 +156,154 @@ namespace RoboticaProject
             legoRobot = Caliberen(legoRobot);
             Thread.Sleep(1000);
 
+            void WhinyGyro()
+            {
+                int i = 400;
 
+                while (true)
+                {
+                    Thread.Sleep(500);
+                    LcdConsole.WriteLine($"{legoRobot.GetGyroWaarde()}");
+                    i++;
+                    LcdConsole.WriteLine($"{i}");
+                }
+            }
 
 
             void HaaiHalen()
             {
+                legoRobot.DraaienNaar(85,20);
+                Thread.Sleep(100);
+                legoRobot.DraaienNaar(85,20);
+                Thread.Sleep(90);
+
+                //legoRobot.DraaienNaar(90);
+
+                legoRobot.Reizen(9);
+
+                legoRobot.DraaienNaar(-1,20);
+                Thread.Sleep(100);
+                legoRobot.DraaienNaar(-1,20);
+                Thread.Sleep(100);
+
+
+
+
                 legoRobot.Reizen(72);
-                legoRobot.DraaienNaar(-48);
-                legoRobot.Reizen(2);
+                legoRobot.DraaienNaar(-52);
+                legoRobot.Reizen(1);
                 legoRobot.ArmOmlaag();
                 Thread.Sleep(300);
                 legoRobot.ArmOmhoog();
-                legoRobot.Reizen(2, false);
+                legoRobot.Reizen(1, false);
                 legoRobot.DraaienNaar(0);
-                legoRobot.Reizen(34,false);
-                legoRobot.DraaienNaar(90);
-                legoRobot.ArmOmlaag();
-                legoRobot.Reizen(12);
-                legoRobot.ArmBewegen(60, 120);
+                legoRobot.DraaienNaar(0);
 
+                legoRobot.Reizen(39, false);
+                legoRobot.DraaienNaar(85);
+                legoRobot.DraaienNaar(85);
 
+                //legoRobot.ArmOmlaag();
 
+                //Tegen mast aan
+                legoRobot.VoortBewegen(30, 30);
 
+                Thread.Sleep(500);
 
+                legoRobot.Reizen(34, false);
 
+                legoRobot.DraaienNaar(10);
+
+                legoRobot.Reizen(30, false);
+                //legoRobot.ArmBewegen(60, 120);
 
             }
 
 
-
-            void Octopus()
+            void DuikbootTillenZijkant()
             {
-                legoRobot.DraaienNaar(-45);
-                legoRobot.Reizen(53);
-                legoRobot.Reizen(3, false);
-                legoRobot.DraaienHoeveelheidGraden(-47);
-                legoRobot.Reizen(37);
-                legoRobot.DraaienHoeveelheidGraden(90);
-                legoRobot.Reizen(15);
-                legoRobot.ArmOmlaag();
+
+                legoRobot.ArmBewegen(30, 50);
+                legoRobot.Reizen(2);
+
+                Thread.Sleep(2000);
+
+                Thread Optillen = new Thread(() => legoRobot.ArmBewegen(80, 40));
+
+                Optillen.Start();
+
+                legoRobot.VoortBewegen(5, 50);
+
+                Optillen.Join();
             }
+
+
+            void OctopusRun()
+            {
+                //legoRobot.Reizen(1);
+                legoRobot.DraaienNaar(-45);
+                legoRobot.Reizen(40);
+
+                // Octopoes opvangen
+                legoRobot.VoortBewegen(4, 30);
+                legoRobot.Reizen(3, false);
+                legoRobot.DraaienHoeveelheidGraden(-44);
+                legoRobot.Reizen(37);
+
+                // draaien naar octo drop
+                legoRobot.DraaienNaar(-1);
+                legoRobot.Reizen(12);
+
+                // Octo drop
+                legoRobot.ArmBewegen(0, 30);
+                Thread.Sleep(100);
+                legoRobot.ArmOmhoog();
+                legoRobot.Reizen(1);
+
+                // draai naar vis
+                legoRobot.DraaienNaar(-25);
+                legoRobot.Reizen(1);
+                legoRobot.DraaienNaar(-53);
+                legoRobot.Reizen(30);
+
+                //Draai naar duikboot
+                legoRobot.DraaienNaar(40);
+                legoRobot.ArmBewegen(20, 40);
+                legoRobot.Reizen(30);
+
+                DuikbootTillenZijkant();
+
+                legoRobot.Reizen(10, false);
+               
+            }
+
+            void HaaiWegBrengen()
+            {
+                legoRobot.DraaienNaar(60, 20);
+                Thread.Sleep(100);
+                legoRobot.DraaienNaar(60, 20);
+                Thread.Sleep(90);
+
+                //legoRobot.ArmOmlaag();
+
+                legoRobot.Reizen(51);
+
+                legoRobot.ArmOmlaag();
+
+                Thread.Sleep(200);
+
+
+
+                legoRobot.ArmOmhoog();
+
+
+
+
+
+
+
+            }
+
 
             //legoRobot.Reizen(5);
             Thread killThread = new Thread(KillSwitchRun);
@@ -205,7 +313,13 @@ namespace RoboticaProject
             killThread.Start();
 
 
-            Octopus();
+            //HaaiHalen();
+
+            HaaiWegBrengen();
+
+            //OctopusRun();
+
+            //DuikbootTillenZijkant();
 
             killSwitchAan = false;
 
@@ -225,94 +339,9 @@ namespace RoboticaProject
             legoRobot.ArmOmlaag();
 
 
-
             Thread.Sleep(3000);
 
-            
-
-
-
-
-
-
-
-
-
-            //legoRobot.Reizen(500,true);
-
-
-            //legoRobot.DraaienNaar(90);
-            //legoRobot.DraaienHoeveelheidGraden(50);
-            //Thread.Sleep(3000);
-            //legoRobot.Reizen(3600);
-            //legoRobot.DraaienNaar(0);
-            //legoRobot.Reizen(1000);
-
-
-
-            //legoRobot.VoortBewegen(2000, 60, false);
-
-            //legoRobot.DraaienNaar(-100);
-            //legoRobot.DraaienNaar(-200);
-            //legoRobot.DraaienNaar(0);
-            //legoRobot.DraaienNaar(-340);
-            //legoRobot.DraaienHoeveelheidGraden(-40);
-            //legoRobot.DraaienNaar(90);
-
-
-
-
-
-            //bool Go= true;
-
-            //buts.EscapePressed += () => { Go = false; };
-
-            // Maakt de robot aan
-            //Robot legoRobot = new LegoRobot.Robot(motorLinks, motorRechts, motorArm, gyroSensor, ultraultrasonicSensor, correctie);
-            //while (Go)
-            //{
-            //    //legoRobot.Ultrasonic();
-
-            //    //legoRobot.Armbewegen(20, 10, 10, 10);
-            //    //legoRobot.Armbewegen(-20, 10, 10, 10);
-
-            //LcdConsole.WriteLine($"Boe");
-
-
-
-
-
-            //legoRobot.VoortBewegen(3000, 40, true);
-            //legoRobot.DraaienHoeveelheidGraden(90);
-
-            //legoRobot.VoortBewegen(3000, 40, true);
-            //legoRobot.DraaienHoeveelheidGraden(90);
-
-            //legoRobot.VoortBewegen(3000, 40, true);
-            //legoRobot.DraaienHoeveelheidGraden(90);
-
-            //legoRobot.VoortBewegen(3000, 40, true);
-            //legoRobot.DraaienHoeveelheidGraden(90);
-
-            //legoRobot.VoortBewegen(3000, 40, false);
-            //legoRobot.DraaienHoeveelheidGraden(90);
-
-            //legoRobot.DraaienNaar(300);
-            //legoRobot.DraaienHoeveelheidGraden(20);
-
-            //Thread.Sleep(3000);
-            //var gyro = new EV3GyroSensor(SensorPort.In1, GyroMode.Angle);
-
-            //for (int i = 0; i<100;i++)
-            //{
-            //    LcdConsole.WriteLine($"Gyro sensor: {gyroSensor.Read()}");
-            //    LcdConsole.WriteLine($"Gyro sensor: {gyroSensor.ReadAsString()}");
-            //Thread.Sleep(100);
-            //}
-
-            //}
-
-
+        
 
 
         }
