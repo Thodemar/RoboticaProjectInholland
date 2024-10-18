@@ -279,9 +279,12 @@ namespace RoboticaProject
 
             void HaaiWegBrengen()
             {
-                legoRobot.DraaienNaar(60, 20);
+                while (legoRobot.GetStatusKnop(true) == false) ;
+
+
+                    legoRobot.DraaienNaar(67, 20);
                 Thread.Sleep(100);
-                legoRobot.DraaienNaar(60, 20);
+                legoRobot.DraaienNaar(67, 20);
                 Thread.Sleep(90);
 
                 //legoRobot.ArmOmlaag();
@@ -296,7 +299,19 @@ namespace RoboticaProject
 
                 legoRobot.ArmOmhoog();
 
+                legoRobot.Reizen(10, false);
 
+                legoRobot.DraaienNaar(0);
+
+                legoRobot.Reizen(5,false);
+
+                legoRobot.DraaienNaar(87);
+
+                legoRobot.Reizen(100);
+
+                legoRobot.DraaienNaar(160);
+
+                legoRobot.Reizen(20);
 
 
 
