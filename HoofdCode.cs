@@ -341,15 +341,10 @@ namespace RoboticaProject
             killThread.Join();
 
 
-            //legoRobot.MOTORTEST(5000, 49, 50);
-
 
             Thread.Sleep(1000);
 
 
-            //legoRobot.ArmBewegen(75, 50);
-            //legoRobot.ArmBewegen(0,50);
-            //LcdConsole.WriteLine(Convert.ToString(legoRobot.GetUltrasonicSensor()));
 
             legoRobot.ArmOmlaag();
 
